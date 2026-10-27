@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#100b22">
+<title>Truth or Dare | Abdullah Al Ansary</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;padding:20px 15px;min-height:100vh;
+  font-family:system-ui,sans-serif;color:#fff;
+  background:radial-gradient(ellipse at top,#352064,#10091f 70%);
+}
+.app{max-width:440px;margin:auto}
+header{text-align:center;padding:12px 0 24px}
+.logo{font-size:44px;filter:drop-shadow(0 0 12px #a855f7)}
+h1{
+  font-size:29px;margin:4px 0;
+  background:linear-gradient(90deg,#c084fc,#48e5ff);
+  -webkit-background-clip:text;background-clip:text;color:transparent
+}
+.subtitle{color:#bdb0d8;font-size:12px}
+.card{
+  background:#ffffff09;border:1px solid #a78bfa44;
+  border-radius:20px;padding:18px;margin-bottom:17px;
+  box-shadow:0 8px 30px #0003
+}
+h2{font-size:17px;margin:0 0 14px}
+input{
+  width:100%;padding:14px;border-radius:12px;
+  border:1px solid #8061b9;background:#170f2b;
+  color:white;font-size:16px;outline:none
+}
+button{
+  border:0;border-radius:12px;padding:13px;
+  color:white;font-size:14px;font-weight:bold;cursor:pointer
+}
+button:disabled{opacity:.5}
+.primary{
+  background:linear-gradient(100deg,#9333ea,#2563eb);
+  box-shadow:0 0 18px #7544ff35
+}
+.add{width:100%;margin-top:9px}
+.names{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+.tag{
+  display:flex;align-items:center;gap:6px;
+  background:#38245a;border:1px solid #a78bfa66;
+  border-radius:20px;padding:7px 10px;font-size:13px
+}
+.remove{padding:0;background:none;color:#ff91b5;font-size:17px}
+.wheel-area{text-align:center;padding:8px 0 15px}
+.pointer{font-size:27px;color:#5ceaff;position:relative;z-index:2}
+.wheel{
+  width:220px;height:220px;max-width:68vw;max-height:68vw;
+  border-radius:50%;margin:-2px auto 20px;
+  border:5px solid #c084fc;
+  background:conic-gradient(
+    #8b5cf6 0 60deg,#202b66 60deg 120deg,
+    #bd49d8 120deg 180deg,#155e91 180deg 240deg,
+    #7539a8 240deg 300deg,#087eaa 300deg 360deg
+  );
+  box-shadow:0 0 18px #a855f7,0 0 35px #3988ff55;
+  display:grid;place-items:center;
+  transition:transform 4s cubic-bezier(.12,.65,.1,1)
+}
+.wheel:after{
+  content:"SPIN";width:72px;height:72px;border-radius:50%;
+  background:#160e2b;border:3px solid #5ceaff;
+  box-shadow:0 0 15px #00d9ff88;
+  display:grid;place-items:center;font-weight:900;letter-spacing:2px
+}
+.spin{width:100%}
+.result{
+  margin-top:17px;padding:16px;text-align:center;
+  background:#24143c;border:1px solid #7c5cbd;border-radius:16px
+}
+.selected{font-size:23px;font-weight:bold;color:#5ceaff;overflow-wrap:anywhere}
+.choices{display:flex;gap:10px;margin-top:15px}
+.choices button{flex:1}
+.truth{background:linear-gradient(135deg,#2563eb,#06b6d4)}
+.dare{background:linear-gradient(135deg,#9333ea,#ec4899)}
+.task{
+  margin-top:14px;padding:17px;text-align:center;
+  line-height:1.8;background:#170f2b;
+  border:1px solid #a78bfa66;border-radius:15px
+}
+.task-text{font-size:18px;margin-top:8px;overflow-wrap:anywhere}
+.next{width:100%;margin-top:12px;background:#34214f;border:1px solid #a78bfa66}
+.hidden{display:none!important}
+.creator{
+  text-align:center;padding:22px 10px;margin-top:20px;
+  color:#bba5ed;font-size:11px;letter-spacing:1px
+}
+.creator h3{
+  font-size:19px;margin:10px 0;
+  background:linear-gradient(90deg,#c084fc,#48e5ff);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  letter-spacing:1px
+}
+.creator p{color:#80749d;font-size:10px}
+</style>
+</head>
+
+<body>
+<main class="app">
+
+<header>
+  <div class="logo">🎡</div>
+  <h1>TRUTH OR DARE</h1>
+  <div class="subtitle">✨ FRIENDS • FUN • CHALLENGE ✨</div>
+</header>
+
+<section class="card">
+  <h2>👥 খেলোয়াড় যোগ করো</h2>
+  <input id="playerInput" maxlength="30"
+    placeholder="খেলোয়াড়ের নাম লেখো...">
+  <button class="primary add" onclick="addPlayer()">+ ADD PLAYER</button>
+  <div class="names" id="names"></div>
+  <p class="subtitle" id="count">মোট খেলোয়াড়: 0</p>
+</section>
+
+<section class="card wheel-area">
+  <h2>🎯 কার পালা এবার?</h2>
+  <div class="pointer">▼</div>
+  <div class="wheel" id="wheel"></div>
+  <button class="primary spin" id="spinBtn" onclick="spinWheel()">
+    🎡 SPIN THE WHEEL
+  </button>
+
+  <div id="result" class="result hidden">
+    <div class="subtitle">নির্বাচিত খেলোয়াড়</div>
+    <div id="selected" class="selected"></div>
+    <p>এবার বেছে নাও 👇</p>
+    <div class="choices">
+      <button class="truth" onclick="chooseTask('truth')">💙 TRUTH</button>
+      <button class="dare" onclick="chooseTask('dare')">💜 DARE</button>
+    </div>
+  </div>
+</section>
+
+<section id="taskCard" class="card hidden">
+  <div class="task">
+    <div id="taskType" class="subtitle"></div>
+    <div id="taskText" class="task-text"></div>
+  </div>
+  <button class="next" onclick="nextRound()">🔄 NEXT ROUND</button>
+</section>
+
+<footer class="creator">
+  <div>✦ DESIGNED &amp; DEVELOPED BY ✦</div>
+  <h3>Abdullah Al Ansary</h3>
+  <p>© 2026 | All Rights Reserved</p>
+</footer>
+
+</main>
+
+<script>
+const players=[];
+let selectedPlayer="";
+let spinning=false;
+let rotation=0;
+
+const truths=[
+"তোমার সবচেয়ে বড় স্বপ্ন কী?",
+"তোমার সবচেয়ে মজার স্মৃতি কোনটি?",
+"কোন দক্ষতাটি তুমি শিখতে চাও?",
+"তোমার প্রিয় শখ কী?",
+"বন্ধুদের সঙ্গে কাটানো সেরা সময় কোনটি?",
+"নিজের কোন গুণটি তোমার সবচেয়ে ভালো লাগে?",
+"কোন জায়গায় ঘুরতে যেতে চাও?",
+"কোন সিনেমাটি তোমার সবচেয়ে প্রিয়?",
+"তোমার জীবনের সবচেয়ে আনন্দের দিন কোনটি?",
+"কোন নতুন অভ্যাস গড়ে তুলতে চাও?"
+];
+
+const dares=[
+"২০ সেকেন্ডের একটি মজার নাচ দেখাও!",
+"একটি মজার কণ্ঠে নিজের নাম বলো!",
+"একটি ছোট্ট কৌতুক বলো!",
+"১৫ সেকেন্ডে তিনটি ফলের নাম বলো!",
+"একটি গানের সুর গুনগুন করো!",
+"একটি প্রাণীর অভিনয় করো!",
+"বাংলায় একটি ছোট কবিতা বলো!",
+"১০ সেকেন্ডে পাঁচটি রঙের নাম বলো!",
+"একটি মজার মুখভঙ্গি করো!",
+"তোমার প্রিয় সিনেমার সংলাপ অভিনয় করে বলো!"
+];
+
+const $=id=>document.getElementById(id);
+
+function addPlayer(){
+  const name=$("playerInput").value.trim();
+  if(!name){alert("আগে খেলোয়াড়ের নাম লেখো!");return}
+  if(players.some(p=>p.toLowerCase()===name.toLowerCase())){
+    alert("এই নামটি ইতিমধ্যে যোগ করা হয়েছে!");return
+  }
+  players.push(name);
+  $("playerInput").value="";
+  renderPlayers();
+}
+
+$("playerInput").addEventListener("keydown",e=>{
+  if(e.key==="Enter")addPlayer()
+});
+
+function renderPlayers(){
+  const box=$("names");
+  box.replaceChildren();
+
+  players.forEach((name,index)=>{
+    const tag=document.createElement("span");
+    tag.className="tag";
+    const label=document.createElement("span");
+    label.textContent=name;
+    const btn=document.createElement("button");
+    btn.className="remove";
+    btn.textContent="×";
+    btn.setAttribute("aria-label",name+" সরান");
+    btn.onclick=()=>{
+      if(spinning)return;
+      players.splice(index,1);
+      renderPlayers()
+    };
+    tag.append(label,btn);
+    box.appendChild(tag)
+  });
+
+  $("count").textContent="মোট খেলোয়াড়: "+players.length
+}
+
+function spinWheel(){
+  if(spinning)return;
+  if(players.length<2){
+    alert("কমপক্ষে ২ জন খেলোয়াড় যোগ করো!");
+    return
+  }
+
+  spinning=true;
+  $("spinBtn").disabled=true;
+  $("result").classList.add("hidden");
+  $("taskCard").classList.add("hidden");
+
+  selectedPlayer=players[Math.floor(Math.random()*players.length)];
+  rotation+=1800+Math.random()*900;
+  $("wheel").style.transform=`rotate(${rotation}deg)`;
+
+  setTimeout(()=>{
+    $("selected").textContent="🎉 "+selectedPlayer;
+    $("result").classList.remove("hidden");
+    $("spinBtn").disabled=false;
+    spinning=false
+  },4100)
+}
+
+function chooseTask(type){
+  const list=type==="truth"?truths:dares;
+  const task=list[Math.floor(Math.random()*list.length)];
+
+  $("taskType").textContent=type==="truth"?"💙 TRUTH TIME":"💜 DARE TIME";
+  $("taskText").textContent=selectedPlayer+", "+task;
+  $("taskCard").classList.remove("hidden");
+  $("taskCard").scrollIntoView({behavior:"smooth",block:"center"})
+}
+
+function nextRound(){
+  $("result").classList.add("hidden");
+  $("taskCard").classList.add("hidden");
+  window.scrollTo({top:0,behavior:"smooth"})
+}
+
+renderPlayers();
+</script>
+</body>
+</html>
